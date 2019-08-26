@@ -1,36 +1,54 @@
 from typing import Iterable
 import matplotlib.pyplot as plt
 import numpy as np
+from time import time
 
 class GUI():
     def __init__(self, figure, cornersx, cornersy):
         self.gridCornersX = cornersx
         self.gridCornersY = cornersy
         self._figure = figure
-        self._cid = self._figure.canvas.mpl_connect("button_press_event", self._onClick)
+
+        self._cid_mouse_press = figure.canvas.mpl_connect("button_press_event",
+                                                          self._onMousePress)
+        self._cid_mouse_release = figure.canvas.mpl_connect("button_release_event",
+                                                            self._onMouseRelease)
+
         self._axes = self._addSubplot()
 
+
+        self._leftMousePressLastTime = -1
         plt.draw()
 
     def _addSubplot(self) -> None:
         ax = self._figure.add_subplot(111)
         return ax
-        
-    def _onClick(self, event) -> None:
+    
+    def _onMousePress(self, event) -> None:
+        if event.button == 1:
+            self._leftMousePressLastTime = time()
+
+    def _onMouseRelease(self, event) -> None:
+        if event.button != 1:
+            return
         
         if event.inaxes != self._axes:
             return
         
-        x, y = event.xdata, event.ydata
-        self.gridCornersX.append(x)
-        self.gridCornersY.append(y)
+        dt = time() - self._leftMousePressLastTime
+        click = dt < 0.5
+        if click:
+            x, y = event.xdata, event.ydata
+            self.gridCornersX.append(x)
+            self.gridCornersY.append(y)
 
-        self._axes.plot(x, y, 'ro')
-        plt.draw()
+            self._axes.plot(x, y, 'ro')
+            plt.draw()
 
         if len(self.gridCornersX) == 4:
-            self._figure.canvas.mpl_disconnect(self._cid)
-            # self._drawGrid()
+            self._figure.canvas.mpl_disconnect(self._cid_mouse_press)
+            self._figure.canvas.mpl_disconnect(self._cid_mouse_release)
+            
     
     def drawRectangle(self, xcorners: Iterable, ycorners: Iterable):
         plt.plot(xcorners, ycorners, 'g')
@@ -38,6 +56,22 @@ class GUI():
                  [ycorners[-1], ycorners[0]], 'g')
 
         plt.draw()
+    
+    def drawPoints(self, x: Iterable, y: Iterable, color: str = 'b') -> None:
+        plt.scatter(x, y, color=color)
+        plt.draw()
+    
+    def drawGridLines(self, grid_points: np.ndarray, color: str = 'g') -> None:
+        y_size, x_size, *_ = grid_points.shape
+        
+        for i in range(y_size):
+            plt.plot(grid_points[i, ..., 0], grid_points[i, ..., 1], color=color)
+        
+        for j in range(x_size):
+            plt.plot(grid_points[..., j, 0], grid_points[..., j, 1], color=color)
+
+    def imshow(self, img: np.ndarray) -> None:
+        self._axes.imshow(img)
 
     def pause(self):
         plt.pause(0.016)

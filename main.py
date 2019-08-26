@@ -4,7 +4,7 @@ import rasterio
 from time import sleep
 
 from gui import GUI
-from cropper import Croper
+from cropper import Cropper
 
 def makeParser() -> ArgumentParser:
     parser = ArgumentParser()
@@ -17,7 +17,7 @@ if __name__ == "__main__":
     parser = makeParser()
     args = parser.parse_args()
     
-    cropper = Croper(args.grid_x, args.grid_y)
+    cropper = Cropper(args.grid_x, args.grid_y)
     gui = GUI(plt.figure(), cropper.gridCornersX, cropper.gridCornersY)
     
     while len(cropper.gridCornersX) != 4:
@@ -25,6 +25,9 @@ if __name__ == "__main__":
     
     cropper.sortCorners()
     gui.drawRectangle(cropper.gridCornersX, cropper.gridCornersY)
-    cropper.calcgridLines()
+    points = cropper.calcgridLines()
+    gui.drawPoints(points[..., 0], points[..., 1])
+    gui.drawGridLines(points)
+
 
     gui.block()
