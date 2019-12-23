@@ -1,13 +1,14 @@
-from typing import Iterable
+from typing import Iterable, List
 import matplotlib.pyplot as plt
 import numpy as np
 from time import time
 
 class GUI():
-    def __init__(self, figure, cornersx, cornersy):
+    def __init__(self, figure, cornersx, cornersy, npoints=4):
         self.gridCornersX = cornersx
         self.gridCornersY = cornersy
         self._figure = figure
+        self._npoints = npoints
 
         self._cid_mouse_press = figure.canvas.mpl_connect("button_press_event",
                                                           self._onMousePress)
@@ -45,7 +46,7 @@ class GUI():
             self._axes.plot(x, y, 'ro')
             plt.draw()
 
-        if len(self.gridCornersX) == 4:
+        if len(self.gridCornersX) == self._npoints:
             self._figure.canvas.mpl_disconnect(self._cid_mouse_press)
             self._figure.canvas.mpl_disconnect(self._cid_mouse_release)
             
@@ -61,14 +62,15 @@ class GUI():
         plt.scatter(x, y, color=color)
         plt.draw()
     
-    def drawGridLines(self, grid_points: np.ndarray, color: str = 'g') -> None:
-        y_size, x_size, *_ = grid_points.shape
-        
-        for i in range(y_size):
-            plt.plot(grid_points[i, ..., 0], grid_points[i, ..., 1], color=color)
-        
-        for j in range(x_size):
-            plt.plot(grid_points[..., j, 0], grid_points[..., j, 1], color=color)
+    def drawGridsLines(self, grids: List[np.ndarray], color: str = 'g') -> None:
+        for grid in grids:
+            y_size, x_size, *_ = grid.shape
+
+            for i in range(y_size):
+                plt.plot(grid[i, ..., 0], grid[i, ..., 1], color=color)
+
+            for j in range(x_size):
+                plt.plot(grid[..., j, 0], grid[..., j, 1], color=color)
 
     def imshow(self, img: np.ndarray) -> None:
         self._axes.imshow(img)
