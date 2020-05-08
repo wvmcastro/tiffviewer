@@ -4,6 +4,10 @@ import math
 import cv2
 import copy
 from time import sleep
+import make_numbers_raiz_b5
+import make_numbers_sede_p4
+import make_numbers_triangulo_b7
+import make_numbers_triangulo_p7
 
 class Cropper():
 
@@ -143,11 +147,12 @@ class Cropper():
                     src = self.getDstTransformPoints(dst)
                     # given the coordinates, extracts the crop of the parcel from the original image
                     crop = self.getCrop(img, src, dst)
+                    # to run local tests, replace self.make_numbers_p2 by the function you implemented for your experiment
                     block, number = self.make_numbers_p2(i, j, self._parcelsy, self._parcelsx, k+1)
                     name = outputdir + timestamp + "-" + "%02d" % (block) + "-" + "%03d" % (number) + ".png"
                     cv2.imwrite(name, crop)
     
-    # this is the implementation to track the zigzag numbers of the parcels in the P2 Croqui, check the Croqui to understand this better
+    # this is the implementation to track the zigzag numbers of the parcels in the P2 sketch, check the sketch to understand this better
     def make_numbers_p2(self, line, col, numLines, numColumns, p2Block: int):
         if col % 2 == 0:
             oy = numLines - 1
@@ -164,9 +169,3 @@ class Cropper():
         index = col * numLines + abs(line - oy)
         index += start_number
         return p2Block, index
-        
-        
-        
-        
-        
-
