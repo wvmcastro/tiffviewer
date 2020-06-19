@@ -8,6 +8,7 @@ import make_numbers_raiz_b5
 import make_numbers_sede_p4
 import make_numbers_triangulo_b7
 import make_numbers_triangulo_p7
+import make_numbers_sede_p1
 
 class Cropper():
 
